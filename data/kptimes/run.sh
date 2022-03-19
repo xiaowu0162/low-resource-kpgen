@@ -102,8 +102,8 @@ done
 }
 
 
-# download_data
-# prepare WhiteSpace processed
+download_data
+prepare WhiteSpace processed
 faiseq_prepare
 json_prepare
-hf_json_prepare
+# hf_json_prepare

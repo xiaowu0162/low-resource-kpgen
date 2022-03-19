@@ -3,3 +3,6 @@ inspec/
 krapivin/
 nus/
 semeval/
+kp_datasets.zip
+kp20k_separated/
+cross_domain_separated/

@@ -5,9 +5,11 @@ SRC_DIR=`realpath ../..`;
 
 function download_data () {
 
+# You may download the zip file manually if the download fails
+# https://drive.google.com/open?id=1DbXV1mZXm_o9bgfwPV9PV0ZPcNo1cnLp  
+
 FILE=kp_datasets.zip
 if [[ ! -f $FILE ]]; then
-    # https://drive.google.com/open?id=1DbXV1mZXm_o9bgfwPV9PV0ZPcNo1cnLp
     fileid="1DbXV1mZXm_o9bgfwPV9PV0ZPcNo1cnLp"
     baseurl="https://drive.google.com/uc?export=download"
     curl -c ./cookie -s -L "${baseurl}&id=${fileid}" > /dev/null
@@ -128,5 +130,6 @@ download_data
 prepare WhiteSpace processed
 faiseq_prepare
 json_prepare
+
 # hf_json_prepare
 # word_count_prepare
