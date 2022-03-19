@@ -27,43 +27,38 @@ ARCH=bart_base # bart_large
 DATA_DIR=${DATA_DIR_PREFIX}/${DATASET}/fairseq/gpt2_bpe/binary/
 
 
-fairseq-train $DATA_DIR \
+fairseq-train ${DATA_DIR} \
     --restore-file $BART_PATH \
-    --task translation \
-    --truncate-source \
-    --max-source-positions 1024 \
-    --max-target-positions 1024 \
-    --source-lang source \
-    --target-lang target \
+    --arch $ARCH \
+    --memory-efficient-fp16 \
+    --train-subset train \
+    --valid-subset valid \
+    --batch-size $PER_DEVICE_BSZ \
     --layernorm-embedding \
     --share-all-embeddings \
     --share-decoder-input-output-embed \
-    --reset-optimizer \
-    --reset-dataloader \
-    --reset-meters \
+    --bpe gpt2 \
+    --task denoising \
+    --insert 0 \
+    --permute-sentences 0 \
+    --poisson-lambda 3.5 \
+    --mask 0.3 \
+    --mask-length 'span-poisson' \
+    --replace-length 1 \
+    --rotate 0 \
+    --mask-random 0.1 \
+    --reset-optimizer --reset-dataloader --reset-meters \
     --required-batch-size-multiple 1 \
-    --batch-size ${PER_DEVICE_BSZ} \
-    --arch $ARCH \
-    --criterion label_smoothed_cross_entropy \
-    --label-smoothing 0.1 \
-    --dropout 0.1 \
-    --attention-dropout 0.1 \
-    --weight-decay 0.01 \
-    --optimizer adam \
-    --adam-betas "(0.9, 0.999)" \
-    --adam-eps 1e-08 \
+    --criterion cross_entropy \
+    --dropout 0.1 --attention-dropout 0.1 \
+    --weight-decay 0.01 --optimizer adam --adam-betas "(0.9, 0.999)" --adam-eps 1e-08 \
     --clip-norm 0.1 \
-    --lr-scheduler polynomial_decay \
-    --lr $LR \
-    --max-update $TOTAL_NUM_UPDATES \
-    --warmup-updates $WARMUP_UPDATES \
+    --lr-scheduler polynomial_decay --lr $LR \
+    --max-update $TOTAL_NUM_UPDATES --warmup-updates $WARMUP_UPDATES \
     --update-freq $UPDATE_FREQ \
     --skip-invalid-size-inputs-valid-test \
-    --find-unused-parameters \
-    --ddp-backend=no_c10d \
-    --save-dir $SAVE_DIR \
-    --log-format json \
-    2>&1 | tee $SAVE_DIR/finetune.log;
+    --find-unused-parameters --ddp-backend=no_c10d \
+    --save-dir $SAVE_DIR 2>&1 | tee $SAVE_DIR/output.log;
 
 }
 
@@ -81,8 +76,8 @@ while getopts ":h" option; do
 done
 
 
-# please run preprocess_titlegen.sh first 
-if [[ $DATASET == 'kp20k-titlegen' ]]; then
+# please run preprocess_text_infilling.sh first 
+if [[ $DATASET == 'kp20k-lm' ]]; then
     DATA_DIR_PREFIX=${HOME_DIR}/data/scikp/
     train
 else
