@@ -99,4 +99,4 @@ bash preprocess_ssp.sh
 bash run_train.sh GPU_IDs kp20k-ssp
 ```
 ## Predictions from Our Models
-We share the predictions from our best model [here](https://drive.google.com/file/d/1WSFgEBD7n0L55I3iB3c9beGqbGvdercv/view?usp=sharing). After downloading and uncompressing the file, you can directly run the `evaluate.sh` in the `BART-SSR-pred` folder to get the scores.
+We share the predictions from our best model [here](https://drive.google.com/file/d/1WSFgEBD7n0L55I3iB3c9beGqbGvdercv/view?usp=sharing). After downloading and uncompressing the file, you can directly run the `evaluate.sh` in the `BART-SSR-preds` folder to get the scores.
