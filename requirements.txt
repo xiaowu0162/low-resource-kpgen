@@ -1,0 +1,8 @@
+numpy
+ConfigArgParse
+nltk
+spacy
+tqdm
+requests
+torch
+# -e git://github.com/xiaowu0162/fairseq.git@b87a36786c7ee7f4763c184f4b1bdc1c33da547f#egg=fairseq

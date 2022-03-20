@@ -1,5 +1,7 @@
 # downloaded models
 models/
+fairseq/
+BART-SSR-preds*
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
