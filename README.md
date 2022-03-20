@@ -3,7 +3,7 @@
 Official code of our work, [Representation Learning for Resource-Constrained Keyphrase Generation](https://arxiv.org/pdf/2203.08118.pdf). 
 
 This repository contains the following functionalities:
- - Datasets used in our experiments: KP20k, Inspec, Krapivin, NUS, SemEval, KPTimes, and three 20k-document subsets of KP20k that we use as $D_{kp}$.
+ - Datasets used in our experiments: KP20k, Inspec, Krapivin, NUS, SemEval, KPTimes, and three 20k-document subsets of KP20k that we use as <img src="https://render.githubusercontent.com/render/math?math=D_{kp}">.
  - Code for intermediate representation learning and finetuning with BART
  - Code for evaluating on the benchmarks
  - Our raw predictions on the scientific benchmarks
