@@ -1,0 +1,36 @@
+{
+  "settings": {
+    "analysis": {
+      "filter": {
+        "english_stemmer": {
+          "type": "stemmer",
+          "language": "english"
+        },
+        "english_possessive_stemmer": {
+          "type": "stemmer",
+          "language": "possessive_english"
+        }
+      },
+      "analyzer": {
+        "rebuilt_english": {
+          "tokenizer": "standard",
+          "filter": [
+            "english_stemmer",
+            "english_possessive_stemmer",
+            "lowercase"
+          ]
+        }
+      }
+    }
+  },
+  "index": {
+    "similarity": {
+      "scripted_tfidf": {
+        "type": "scripted",
+        "script": {
+          "source": "double tf = Math.sqrt(doc.freq); double idf = Math.log((field.docCount+1.0)/(term.docFreq+1.0)) + 1.0; double norm = 1/Math.sqrt(doc.length); return query.boost * tf * idf * norm;"
+        }
+      }
+    }
+  }
+}
