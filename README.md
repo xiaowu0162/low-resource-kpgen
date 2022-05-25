@@ -101,4 +101,4 @@ bash run_train.sh GPU_IDs kp20k-ssp-[m,d]
 ```
 Warning: running BM25 retrieval takes a long time. We suggest first trying on a small subset of KP20k, and parallelizing the search manually when running on the entire KP20k train set.
 ## Predictions from Our Models
-We share the predictions from fine-tuning our best SSR-D model on kp20k-20k [here](https://drive.google.com/file/d/1WSFgEBD7n0L55I3iB3c9beGqbGvdercv/view?usp=sharing). After downloading and uncompressing the file, you can directly run the `evaluate.sh` in the `BART-SSR-D-preds` folder to get the scores.
+We share the predictions from fine-tuning our best SSR-D model on kp20k-20k [here](https://drive.google.com/file/d/1VRcs9qs6wVlSVZyrgmWx5HLyZkhrjDl-/view?usp=sharing). After downloading and uncompressing the file, you can directly run the `evaluate.sh` in the `BART-SSR-D-preds` folder to get the scores.
