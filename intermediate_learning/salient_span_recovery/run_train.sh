@@ -30,7 +30,7 @@ UPDATE_FREQ=16
 # or comment out "--batch-size" below and add "--max-tokens $MAX_TOKENS" to use dynamic bsz controlled by MAX_TOKENS
 PER_DEVICE_BSZ=4
 ARCH=bart_base # bart_large
-BART_PATH=bart.base/model.pt # bart.large/model.pt
+#BART_PATH=bart.base/model.pt # bart.large/model.pt
 SAVE_DIR=/local/diwu/kpgen_bart_experiments/${DATASET}_checkpoints
 
 mkdir -p $SAVE_DIR
