@@ -39,6 +39,7 @@ If you find our work useful, please consider citing:
 	bash run.sh
 	cd ../kptimes
 	bash run.sh
+	cd ../..
 	```
 
 ## Finetuning on Keyphrase Generation
