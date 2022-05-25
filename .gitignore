@@ -1,7 +1,8 @@
-# downloaded models
+# downloaded models and experiment dirs
 models/
 fairseq/
 BART-SSR-preds*
+zero-shot-eval/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

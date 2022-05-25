@@ -1,0 +1,7 @@
+# experiment cache
+*experiments*/
+
+# customized scripts
+run_train_*.sh
+preprocess_full.sh
+run_test_*.sh
