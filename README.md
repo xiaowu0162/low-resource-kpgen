@@ -84,19 +84,20 @@ bash run_train.sh GPU_IDs kp20k-lm
 ### Salient Span Recovery and Salient Span Prediction
 SSR and SSP requires offline span prediction as the first step:
 ```
-cd intermediate_learning/salient_span_recovery
-bash find_spans_tfidf.sh
+cd intermediate_learning/salient_span_recovery/bm25-spans
+bash find_spans_bm25.sh
 ```
-Then, you can run SSR by
+Then, you can run SSR-M or SSR-D by
 ```
 bash preprocess_ssr.sh
-bash run_train.sh GPU_IDs kp20k-ssr
+bash run_train.sh GPU_IDs kp20k-ssr-[m,d]
 ```
-Or you can run SSP by 
+Or you can run SSP-M or SSP-D by 
 ```
 bash preprocess_ssr.sh
 bash preprocess_ssp.sh
-bash run_train.sh GPU_IDs kp20k-ssp
+bash run_train.sh GPU_IDs kp20k-ssp-[m,d]
 ```
+Warning: running BM25 retrieval takes a long time. We suggest first trying on a small subset of KP20k, and parallelizing the search manually when running on the entire KP20k train set.
 ## Predictions from Our Models
-We share the predictions from our best model [here](https://drive.google.com/file/d/1WSFgEBD7n0L55I3iB3c9beGqbGvdercv/view?usp=sharing). After downloading and uncompressing the file, you can directly run the `evaluate.sh` in the `BART-SSR-preds` folder to get the scores.
+We share the predictions from fine-tuning our best SSR-D model on kp20k-20k [here](https://drive.google.com/file/d/1WSFgEBD7n0L55I3iB3c9beGqbGvdercv/view?usp=sharing). After downloading and uncompressing the file, you can directly run the `evaluate.sh` in the `BART-SSR-D-preds` folder to get the scores.
