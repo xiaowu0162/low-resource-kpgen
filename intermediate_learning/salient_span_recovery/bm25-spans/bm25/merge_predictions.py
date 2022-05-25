@@ -9,10 +9,10 @@ REMOVE_DUPE = False
 for subset in ['train', 'valid', 'test']:
     src_file = "../data/kp20k.{}.jsonl".format(subset)
     in_pred_file = "raw_preds/kp20k-{}-bm25-salient1000.json".format(subset)
-    out_file = "kp20k-bm25-v2-fuzzy/kp20k.{}.salient1000.merged.json".format(subset)
+    out_file = "merged/kp20k.{}.salient1000.merged.json".format(subset)
 
     with open(src_file) as in_src_f, open(in_pred_file) as in_pred_f, open(out_file, 'w') as out_f:
-        for src_line in tqdm(in_src_f.readlines(), desc='subset'):
+        for src_line in tqdm(in_src_f.readlines(), desc=subset):
             src_entry = json.loads(src_line)
             bm25_pred_entry = json.loads(in_pred_f.readline())
             bm25_spans = []

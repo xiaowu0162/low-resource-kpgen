@@ -21,17 +21,15 @@ function train-sharding () {
 
 export CUDA_VISIBLE_DEVICES=$1
 DATASET=$2
-TOTAL_NUM_UPDATES=1000000
-WARMUP_UPDATES=1000
-LR=6e-05
+TOTAL_NUM_UPDATES=700000
+WARMUP_UPDATES=6000
+LR=3e-04
 MAX_TOKENS=2048
 # please adjust this number accordingly if you use more than 1 GPU
 UPDATE_FREQ=16
 # or comment out "--batch-size" below and add "--max-tokens $MAX_TOKENS" to use dynamic bsz controlled by MAX_TOKENS
 PER_DEVICE_BSZ=4
 ARCH=bart_base # bart_large
-#BART_PATH=bart.base/model.pt # bart.large/model.pt
-SAVE_DIR=/local/diwu/kpgen_bart_experiments/${DATASET}_checkpoints
 
 mkdir -p $SAVE_DIR
 
@@ -80,17 +78,31 @@ done
 
 N_SHARDS=35
 
-if [[ $2 == 'kp20k-ssr' ]]; then
-    ALLSHARDS=$DATA_DIR/scikp/kp20k-salient-span/fairseq/gpt2_bpe_ssr/binary/shard1
+if [[ $2 == 'kp20k-ssr-d' ]]; then
+    ALLSHARDS=$DATA_DIR/scikp/kp20k-salient-span/fairseq/gpt2_bpe_ssr-d/binary/shard1
     for i in `seq 2 ${N_SHARDS}`; do
-	    ALLSHARDS+=":$DATA_DIR/scikp/kp20k-salient-span/fairseq/gpt2_bpe_ssr/binary/shard${i}"
+	    ALLSHARDS+=":$DATA_DIR/scikp/kp20k-salient-span/fairseq/gpt2_bpe_ssr-d/binary/shard${i}"
     done
     echo ${ALLSHARDS}
     train-sharding "$1" $2
-elif [[ $2 == 'kp20k-ssp' ]]; then
-    ALLSHARDS=$DATA_DIR/scikp/kp20k-salient-span/fairseq/gpt2_bpe_ssp/binary/shard1
+elif [[ $2 == 'kp20k-ssr-m' ]]; then
+    ALLSHARDS=$DATA_DIR/scikp/kp20k-salient-span/fairseq/gpt2_bpe_ssr-m/binary/shard1
     for i in `seq 2 ${N_SHARDS}`; do
-	    ALLSHARDS+=":$DATA_DIR/scikp/kp20k-salient-span/fairseq/gpt2_bpe_ssp/binary/shard${i}"
+	    ALLSHARDS+=":$DATA_DIR/scikp/kp20k-salient-span/fairseq/gpt2_bpe_ssr-m/binary/shard${i}"
+    done
+    echo ${ALLSHARDS}
+    train-sharding "$1" $2
+elif [[ $2 == 'kp20k-ssp-d' ]]; then
+    ALLSHARDS=$DATA_DIR/scikp/kp20k-salient-span/fairseq/gpt2_bpe_ssp-d/binary/shard1
+    for i in `seq 2 ${N_SHARDS}`; do
+	    ALLSHARDS+=":$DATA_DIR/scikp/kp20k-salient-span/fairseq/gpt2_bpe_ssp-d/binary/shard${i}"
+    done
+    echo ${ALLSHARDS}
+    train-sharding "$1" $2
+elif [[ $2 == 'kp20k-ssp-m' ]]; then
+    ALLSHARDS=$DATA_DIR/scikp/kp20k-salient-span/fairseq/gpt2_bpe_ssp-m/binary/shard1
+    for i in `seq 2 ${N_SHARDS}`; do
+	    ALLSHARDS+=":$DATA_DIR/scikp/kp20k-salient-span/fairseq/gpt2_bpe_ssp-m/binary/shard${i}"
     done
     echo ${ALLSHARDS}
     train-sharding "$1" $2

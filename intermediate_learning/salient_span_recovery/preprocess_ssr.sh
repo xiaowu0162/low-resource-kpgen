@@ -32,10 +32,9 @@ DICT_FILE=${MODEL_DIR}/bart.base/dict.txt
 
 function bpe_preprocess () {
 
-if [[ "$TASK" =~ ^(kp20k-salient-span)$ ]]; then
-    IN_DIR=$DATA_DIR/scikp/$TASK/fairseq
-    OUT_DIR=$DATA_DIR/scikp/$TASK/fairseq/gpt2_bpe
-fi
+IN_DIR=$DATA_DIR/scikp/kp20k-salient-span/fairseq
+OUT_DIR=$DATA_DIR/scikp/kp20k-salient-span/fairseq/gpt2_bpe
+
 
 mkdir -p $OUT_DIR
 
@@ -83,18 +82,43 @@ done
 
 
 # aggregate data first
-python agg_data.py
+#python agg_data.py
+#bpe_preprocess
 
-# bpe encode the text and spans
+
 TASK=kp20k-salient-span
-bpe_preprocess
 
-# generate masking shards in bpe
+####################################################################
+# Option 1: SSR-M
+
+# N_SHARDS=35
+# SHUFFLE=True
+# RAW_BPE_DIR=$DATA_DIR/scikp/kp20k-salient-span/fairseq/gpt2_bpe/
+# MASKED_BPE_DIR=$DATA_DIR/scikp/$TASK/fairseq/gpt2_bpe_ssr-m/
+# mkdir -p ${MASKED_BPE_DIR}
+# python prepare_ssr.py kp20k ${N_SHARDS} ${RAW_BPE_DIR} ${MASKED_BPE_DIR} ${SHUFFLE}
+
+# # move things around
+# for s in `seq 1 ${N_SHARDS}`; do
+#     mkdir -p ${MASKED_BPE_DIR}/shard${s}
+#     mv ${MASKED_BPE_DIR}/train.bpe.source.shard${s} ${MASKED_BPE_DIR}/shard${s}/train.bpe.source
+#     mv ${MASKED_BPE_DIR}/train.bpe.target.shard${s} ${MASKED_BPE_DIR}/shard${s}/train.bpe.target
+# done
+# mv ${MASKED_BPE_DIR}/valid.bpe.* ${MASKED_BPE_DIR}/test.bpe.* ${MASKED_BPE_DIR}/shard1
+
+# # binarize
+# process_shards
+
+
+####################################################################
+# Option 2: SSR-D
+
 N_SHARDS=35
-RAW_BPE_DIR=$DATA_DIR/scikp/$TASK/fairseq/gpt2_bpe/
-MASKED_BPE_DIR=$DATA_DIR/scikp/$TASK/fairseq/gpt2_bpe_ssr/
+SHUFFLE=True
+RAW_BPE_DIR=$DATA_DIR/scikp/kp20k-salient-span/fairseq/gpt2_bpe/
+MASKED_BPE_DIR=$DATA_DIR/scikp/$TASK/fairseq/gpt2_bpe_ssr-d/
 mkdir -p ${MASKED_BPE_DIR}
-python prepare_ssr.py kp20k ${N_SHARDS} ${RAW_BPE_DIR} ${MASKED_BPE_DIR}
+python prepare_ssr_deletion.py kp20k ${N_SHARDS} ${RAW_BPE_DIR} ${MASKED_BPE_DIR} ${SHUFFLE} 
 
 # move things around
 for s in `seq 1 ${N_SHARDS}`; do

@@ -6,13 +6,13 @@ from tqdm import tqdm
 from fairseq.data.encoders.gpt2_bpe import GPT2BPE
 
 
-def prepare_ssr_masking_sharding(source_file_bpe, target_file_bpe, input_dir, output_dir, n_shards, shuffle=True):
+def prepare_ssr_deletion_sharding(source_file_bpe, target_file_bpe, input_dir, output_dir, n_shards, shuffle=True):
     for i in range(n_shards):
         print('Generating shard{}...'.format(i+1))
-        prepare_ssr_masking_oneshot(source_file_bpe, target_file_bpe, input_dir, output_dir, shard_idx=i+1, shuffle=shuffle)
+        prepare_ssr_deletion_oneshot(source_file_bpe, target_file_bpe, input_dir, output_dir, shard_idx=i+1)
 
 
-def prepare_ssr_masking_oneshot(source_file_bpe, target_file_bpe, input_dir, output_dir, shard_idx=None, shuffle=True):
+def prepare_ssr_deletion_oneshot(source_file_bpe, target_file_bpe, input_dir, output_dir, shard_idx=None, shuffle=True):
     bpe = GPT2BPE(None)
     REPEAT_TIMES = 1    # repeat each document for how many times
     MASK_PROB_KP = 0.4  # 0.8        # prob of masking each keyphrase
@@ -38,13 +38,13 @@ def prepare_ssr_masking_oneshot(source_file_bpe, target_file_bpe, input_dir, out
     else:
         out_src_file = output_dir + source_file_bpe + ".shard{}".format(shard_idx)#+ ".masked.source.shard{}".format(shard_idx)
         out_tgt_file = output_dir + target_file_bpe + ".shard{}".format(shard_idx) #+ ".masked.target.shard{}".format(shard_idx)
-    mask_ratios = []
+    delete_ratios = []
     with open(out_src_file, 'w') as out_src_f, open(out_tgt_file, 'w') as out_tgt_f:
         for original_src, original_tgt in tqdm(data):
             original_ntokens = len(original_src.split())
             out_tgt_f.write(original_src + '\n')
 
-            # first mask out keyphrases
+            # first delete keyphrases
             original_tgt = original_tgt[3:].split('2162')
             original_tgt = [x.strip() for x in original_tgt]
             original_tgt.sort(key=(lambda x: len(x.split())), reverse=True)
@@ -59,18 +59,17 @@ def prepare_ssr_masking_oneshot(source_file_bpe, target_file_bpe, input_dir, out
                     if cur_i != len(src_line_temp)-1:
                         r = random.random()
                         if r <= MASK_PROB_KP:
-                            masked_src.append('51200')
+                            #masked_src.append('51200')
+                            continue
                         else:
                             masked_src.append(kp)
                 masked_src = " ".join(masked_src).replace('  ', ' ')
 
-            # then mask out random words, replacing each span with a single mask
+            # then delete random words
             masked_src_final = []
             append_flag_nonstarting = True
             for cur_token in masked_src.split():
-                if cur_token == "51200":
-                    masked_src_final.append(cur_token)
-                elif not bpe.is_beginning_of_word(cur_token):
+                if not bpe.is_beginning_of_word(cur_token):
                     if append_flag_nonstarting:
                         masked_src_final.append(cur_token) 
                     else:
@@ -78,7 +77,7 @@ def prepare_ssr_masking_oneshot(source_file_bpe, target_file_bpe, input_dir, out
                 else:
                     r = random.random()
                     if r <= MASK_PROB_OTHER:
-                        masked_src_final.append('51200')
+                        #masked_src_final.append('51200')
                         append_flag_nonstarting = False
                     else:
                         masked_src_final.append(cur_token)
@@ -86,11 +85,12 @@ def prepare_ssr_masking_oneshot(source_file_bpe, target_file_bpe, input_dir, out
 
             masked_src_final = ' '.join(masked_src_final)
             nonmasked_ntokens = len([x for x in masked_src_final.split() if x != "51200"])
-            mask_ratios.append(1-nonmasked_ntokens/original_ntokens)
+            delete_ratios.append(1-nonmasked_ntokens/original_ntokens)
             
             out_src_f.write(masked_src + '\n')
     
-        print("Average mask ratio:", np.mean(np.array(mask_ratios)))
+        print("Average deletion ratio:", np.mean(np.array(delete_ratios)))
+
 
 
 if __name__ == '__main__':
@@ -102,7 +102,8 @@ if __name__ == '__main__':
     n_shards = int(sys.argv[2])
     input_dir = sys.argv[3]
     output_dir = sys.argv[4]
-    shuffle_flag = bool(sys.argv[5])
+    shuffle_flag = sys.argv[5]
+
 
     for split in ['train', 'valid', 'test']:
         #for split in ['valid']:
@@ -110,6 +111,6 @@ if __name__ == '__main__':
         target_file_bpe = '{}.bpe.target'.format(split)
         print(source_file_bpe)
         if split == 'train':
-            prepare_ssr_masking_sharding(source_file_bpe, target_file_bpe, input_dir, output_dir, n_shards, shuffle=shuffle_flag)             
+            prepare_ssr_deletion_sharding(source_file_bpe, target_file_bpe, input_dir, output_dir, n_shards, shuffle_flag) 
         else:
-            prepare_ssr_masking_oneshot(source_file_bpe, target_file_bpe, input_dir, output_dir)
+            prepare_ssr_deletion_oneshot(source_file_bpe, target_file_bpe, input_dir, output_dir)

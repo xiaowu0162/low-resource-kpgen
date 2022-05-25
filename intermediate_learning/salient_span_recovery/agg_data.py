@@ -28,6 +28,10 @@ def process_salient_span(infile, outdir, split):
 
 
 if __name__ == '__main__':
-    process_salient_span('tfidf/merged/kp20k.train.tfidfpred.jsonl', DATA_DIR + '/scikp/kp20k-salient-span/fairseq', 'train')
-    process_salient_span('tfidf/merged/kp20k.valid.tfidfpred.jsonl', DATA_DIR + '/scikp/kp20k-salient-span/fairseq', 'valid')
-    process_salient_span('tfidf/merged/kp20k.test.tfidfpred.jsonl', DATA_DIR + '/scikp/kp20k-salient-span/fairseq', 'test')
+    process_salient_span('bm25-spans/bm25/merged/kp20k.train.salient1000.merged.json', DATA_DIR + '/scikp/kp20k-salient-span/fairseq', 'train')
+    process_salient_span('bm25-spans/bm25/merged/kp20k.valid.salient1000.merged.json', DATA_DIR + '/scikp/kp20k-salient-span/fairseq', 'valid')
+    process_salient_span('bm25-spans/bm25/merged/kp20k.test.salient1000.merged.json', DATA_DIR + '/scikp/kp20k-salient-span/fairseq', 'test')
+    #process_salient_span('tfidf-spans/tfidf/merged/kp20k.train.tfidfpred.jsonl', DATA_DIR + '/scikp/kp20k-salient-span/fairseq', 'train')
+    #process_salient_span('tfidf-spans/merged/kp20k.valid.tfidfpred.jsonl', DATA_DIR + '/scikp/kp20k-salient-span/fairseq', 'valid')
+    #process_salient_span('tfidf-spans/tfidf/merged/kp20k.test.tfidfpred.jsonl', DATA_DIR + '/scikp/kp20k-salient-span/fairseq', 'test')
+    

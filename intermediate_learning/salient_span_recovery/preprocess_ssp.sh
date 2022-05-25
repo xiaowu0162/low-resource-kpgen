@@ -1,8 +1,5 @@
 #!/usr/bin/env bash
 
-# Please make sure to run `preprocess_ssr.sh` first. 
-# This script just put together the outputs from `preprocess_ssr.sh`.
-
 export PYTHONIOENCODING=utf-8;
 CURRENT_DIR=`pwd`
 HOME_DIR=`realpath ../..`;
@@ -30,14 +27,6 @@ for filename in "encoder.json" "vocab.bpe" "dict.txt"; do
 done
 
 DICT_FILE=${MODEL_DIR}/bart.base/dict.txt 
-
-TASK=kp20k-salient-span
-RAW_BPE_DIR=$DATA_DIR/scikp/$TASK/fairseq/gpt2_bpe/
-MASKED_BPE_DIR=$DATA_DIR/scikp/$TASK/fairseq/gpt2_bpe_ssr/
-OUT_DIR=$DATA_DIR/scikp/$TASK/fairseq/gpt2_bpe_ssp/
-
-# change this number according to the ssr settings
-N_SHARDS=35
 
 
 function process_shards () {
@@ -67,15 +56,81 @@ done
 }
 
 
+# Please make sure to run preprocess_ssr.sh first as it calls agg_data.py and does some basic preprocessing that this script depends on.
+
+TASK=kp20k-salient-span
+
+
+#################################################################################
+# Option 1: ssp-m
+
+RAW_BPE_DIR=$DATA_DIR/scikp/kp20k-salient-span/fairseq/gpt2_bpe/
+MASKED_BPE_DIR=$DATA_DIR/scikp/$TASK/fairseq/gpt2_bpe_ssr-m_in_order/
+mkdir -p ${MASKED_BPE_DIR}
+OUT_DIR=$DATA_DIR/scikp/$TASK/fairseq/gpt2_bpe_ssp-m/
+
+N_SHARDS=35
+SHUFFLE=False
+python prepare_ssr.py kp20k ${N_SHARDS} ${RAW_BPE_DIR} ${MASKED_BPE_DIR} ${SHUFFLE}
+
+# move things around
+for s in `seq 1 ${N_SHARDS}`; do
+    mkdir -p ${MASKED_BPE_DIR}/shard${s}
+    mv ${MASKED_BPE_DIR}/train.bpe.source.shard${s} ${MASKED_BPE_DIR}/shard${s}/train.bpe.source
+    mv ${MASKED_BPE_DIR}/train.bpe.target.shard${s} ${MASKED_BPE_DIR}/shard${s}/train.bpe.target
+done
+mv ${MASKED_BPE_DIR}/valid.bpe.* ${MASKED_BPE_DIR}/test.bpe.* ${MASKED_BPE_DIR}/shard1
+
+
 # get all bpe files
 for s in `seq 1 ${N_SHARDS}`; do
     echo "Shard ${s}"
     mkdir -p ${OUT_DIR}/shard${s}
-    cp ${MASKED_BPE_DIR}/shard${s}/train.bpe.source ${OUT_DIR}/shard${s}
-    cp ${RAW_BPE_DIR}/train.bpe.target ${OUT_DIR}/shard${s}
+    # shuffle and dedup
+    python shuffle_and_deduplify_for_ssp.py ${MASKED_BPE_DIR}/shard${s}/train.bpe.source ${RAW_BPE_DIR}/train.bpe.target ${OUT_DIR}/shard${s}
 done
 cp ${MASKED_BPE_DIR}/shard1/valid.bpe.source ${MASKED_BPE_DIR}/shard1/test.bpe.source ${OUT_DIR}/shard1
 cp ${RAW_BPE_DIR}/valid.bpe.target ${RAW_BPE_DIR}/test.bpe.target ${OUT_DIR}/shard1
 
 # binarize
 process_shards
+
+# remove the intermediate files
+rm -r ${MASKED_BPE_DIR}
+
+#################################################################################
+# Option 2: ssp-d
+
+RAW_BPE_DIR=$DATA_DIR/scikp/kp20k-salient-span/fairseq/gpt2_bpe/
+MASKED_BPE_DIR=$DATA_DIR/scikp/$TASK/fairseq/gpt2_bpe_ssr-d_in_order/
+mkdir -p ${MASKED_BPE_DIR}
+OUT_DIR=$DATA_DIR/scikp/$TASK/fairseq/gpt2_bpe_ssp-d/
+
+N_SHARDS=35
+SHUFFLE=False
+python prepare_ssr_deletion.py kp20k ${N_SHARDS} ${RAW_BPE_DIR} ${MASKED_BPE_DIR} ${SHUFFLE} 
+
+# move things around
+for s in `seq 1 ${N_SHARDS}`; do
+    mkdir -p ${MASKED_BPE_DIR}/shard${s}
+    mv ${MASKED_BPE_DIR}/train.bpe.source.shard${s} ${MASKED_BPE_DIR}/shard${s}/train.bpe.source
+    mv ${MASKED_BPE_DIR}/train.bpe.target.shard${s} ${MASKED_BPE_DIR}/shard${s}/train.bpe.target
+done
+mv ${MASKED_BPE_DIR}/valid.bpe.* ${MASKED_BPE_DIR}/test.bpe.* ${MASKED_BPE_DIR}/shard1
+
+
+# get all bpe files
+for s in `seq 1 ${N_SHARDS}`; do
+    echo "Shard ${s}"
+    mkdir -p ${OUT_DIR}/shard${s}
+    # shuffle and dedup 
+    python shuffle_and_deduplify_for_ssp.py ${MASKED_BPE_DIR}/shard${s}/train.bpe.source ${RAW_BPE_DIR}/train.bpe.target ${OUT_DIR}/shard${s}
+done
+cp ${MASKED_BPE_DIR}/shard1/valid.bpe.source ${MASKED_BPE_DIR}/shard1/test.bpe.source ${OUT_DIR}/shard1
+cp ${RAW_BPE_DIR}/valid.bpe.target ${RAW_BPE_DIR}/test.bpe.target ${OUT_DIR}/shard1
+
+# binarize
+process_shards
+
+# remove the intermediate files
+rm -r ${MASKED_BPE_DIR}
