@@ -15,7 +15,7 @@ cp *.sh ${SAVE_DIR}/code_backup
 
 function train () {
 
-TOTAL_NUM_UPDATES=3000   # this is for a 20k-sized dataset; moderate it to fit your need
+TOTAL_NUM_UPDATES=10000   # this is for a 20k-sized dataset; moderate it to fit your need
 WARMUP_UPDATES=150
 LR=1e-05
 MAX_TOKENS=2048
